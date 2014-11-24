@@ -1,0 +1,22 @@
+{
+    "name": "dizews/yii2-push-stream",
+    "description": "push stream module",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vladimir Zbrailov",
+            "email": "dizews@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*",
+        "bower-asset/pushstream": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "dizews\\pushStream\\": ""
+        }
+    }
+}
