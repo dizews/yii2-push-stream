@@ -11,12 +11,16 @@ class PushStreamWidget extends Widget
 
     public $channels;
 
+    public $pusher = 'pusher';
+
 
     public function init()
     {
+        $config = \Yii::$app->{$this->pusher}->listenServerOptions;
         $this->pluginOptions = [
-            'port'=> 8080,
-            'modes' => 'stream'
+            'host' => $config['host'],
+            'port' => $config['port'],
+            'modes' => $config['modes']
         ];
     }
     /**
@@ -37,7 +41,7 @@ class PushStreamWidget extends Widget
             pushstream.onmessage = function (text, id, channel) {
                 console.log(text + id + channel);
             }
-            //pushstream.connect();
+            pushstream.connect();
 JS;
         $view->registerJs($js);
     }

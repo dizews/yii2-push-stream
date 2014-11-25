@@ -14,14 +14,13 @@ class Pusher extends Component
 
     public $serverOptions = [
         'host' => '127.0.0.1',
-        'port' => '80',
-        'path' => '/pub',
-        'id' => 'id'
+        'port' => 80,
+        'path' => '/pub'
     ];
 
-
     public $listenServerOptions = [
-        'path' => '/sub'
+        'path' => '/sub',
+        'modes' => 'stream'
     ];
 
     public function init()
@@ -37,7 +36,7 @@ class Pusher extends Component
 
         //we need to add limit of channels
         foreach ($channels as $channel) {
-            $endpoint .= http_build_query([$this->serverOptions['id'] => $channel]);
+            $endpoint .= http_build_query(['id' => $channel]);
 
             $payload = [
                 'name' => $event,
