@@ -40,7 +40,7 @@ class PushStreamWidget extends Widget
             {$channels}
             pushstream.onmessage = function (text, id, channel) {
                 var json = $.parseJSON(text);
-                $.event.trigger({
+                $(pushstream).trigger({
                     channel: channel,
                     type: json.type,
                     message: json.msg
