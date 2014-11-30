@@ -13,6 +13,8 @@ class PushStreamWidget extends Widget
 
     public $pusher = 'pusher';
 
+    public $connect = true;
+
 
     public function init()
     {
@@ -45,9 +47,11 @@ class PushStreamWidget extends Widget
                     type: json.type,
                     message: json.msg
                 });
-            }
-            pushstream.connect();
+            };
 JS;
+        if ($this->connect) {
+            $js .= 'pushstream.connect();';
+        }
         $view->registerJs($js);
     }
 }
