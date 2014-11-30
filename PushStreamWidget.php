@@ -39,7 +39,12 @@ class PushStreamWidget extends Widget
             var pushstream = new PushStream($options);
             {$channels}
             pushstream.onmessage = function (text, id, channel) {
-                console.log(text + id + channel);
+                var json = $.parseJSON(text);
+                $.event.trigger({
+                    channel: channel,
+                    type: json.type,
+                    message: json.msg
+                });
             }
             pushstream.connect();
 JS;
