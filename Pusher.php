@@ -35,7 +35,7 @@ class Pusher extends Component
     }
 
 
-    public function publish($channels, $event, $data, $socketId = null, $debug = false, $encoded = false)
+    public function publish($channels, $event, $data, $socketId = null, $debug = false)
     {
         $channels = (array)$channels;
         $endpoint = $this->makeEndpoint($this->serverOptions);
@@ -51,7 +51,7 @@ class Pusher extends Component
                 'query' => ['id' => $channel],
                 'body' => Json::encode([
                     'name' => $event,
-                    'data' => $encoded ? $data : Json::encode($data),
+                    'data' => $data,
                     'socketId' => $socketId,
                 ])."\n"
             ]);
