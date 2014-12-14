@@ -7,12 +7,11 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Stream\Utils;
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
 
 
 class Pusher extends Component
 {
-    public $contentType = 'application/json';
+    public $format = 'json';
 
     /* @var Client */
     public $client;
@@ -45,15 +44,12 @@ class Pusher extends Component
             //send $payload into $endpoint
             $response = $this->client->post($endpoint, [
                 'debug' => $debug,
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ],
                 'query' => ['id' => $channel],
-                'body' => Json::encode([
+                $this->format => [
                     'name' => $event,
                     'data' => $data,
                     'socketId' => $socketId,
-                ])."\n"
+                ]
             ]);
 
             return $response->getBody()->getContents();
