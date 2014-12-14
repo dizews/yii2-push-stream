@@ -1,8 +1,8 @@
 {
     "name": "dizews/yii2-push-stream",
-    "description": "push stream module",
+    "description": "yi2 component and widget for nginx push stream module",
     "type": "yii2-extension",
-    "keywords": ["yii2","extension"],
+    "keywords": ["yii2","extension", "long polling", "jsonp", "stream"],
     "license": "MIT",
     "authors": [
         {
