@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Stream\Utils;
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 
 
 class Pusher extends Component
@@ -38,6 +39,9 @@ class Pusher extends Component
     {
         $channels = (array)$channels;
         $endpoint = $this->makeEndpoint($this->serverOptions);
+        if (!strpos($endpoint, 'http')) { //hack!!
+            $endpoint = 'http://'.$endpoint;
+        }
 
         //we need to add limit of channels
         foreach ($channels as $channel) {
@@ -46,7 +50,7 @@ class Pusher extends Component
                 'debug' => $debug,
                 'query' => ['id' => $channel],
                 $this->format => [
-                    'name' => $event,
+                    'type' => $event,
                     'data' => $data,
                     'socketId' => $socketId,
                 ]

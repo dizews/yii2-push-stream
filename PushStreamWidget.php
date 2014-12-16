@@ -18,7 +18,7 @@ class PushStreamWidget extends Widget
 
     public function init()
     {
-        $config = \Yii::$app->{$this->pusher}->listenServerOptions;
+        $config = \Yii::$app->get($this->pusher)->listenServerOptions;
         $this->pluginOptions = [
             'host' => $config['host'],
             'port' => $config['port'],
@@ -41,11 +41,12 @@ class PushStreamWidget extends Widget
             var pushstream = new PushStream($options);
             {$channels}
             pushstream.onmessage = function (text, id, channel) {
-                var json = $.parseJSON(text);
+                //var json = $.parseJSON(text);
+                var json = text;
                 $(pushstream).trigger({
                     channel: channel,
                     type: json.type,
-                    message: json.msg
+                    body: json.data
                 });
             };
 JS;
