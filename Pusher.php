@@ -33,7 +33,7 @@ class Pusher extends Component
         'modes' => 'stream'
     ];
 
-    public $autoFlush = false;
+    public $flushAfterRequest = true;
 
     protected $channels = [];
 
@@ -43,7 +43,7 @@ class Pusher extends Component
         $this->listenServerOptions = ArrayHelper::merge($this->serverOptions, $this->listenServerOptions);
         $this->client = new Client();
 
-        if (!$this->autoFlush) {
+        if ($this->flushAfterRequest) {
             Yii::$app->on(Application::EVENT_AFTER_REQUEST, function () {
                 $this->flush();
             });
@@ -66,7 +66,7 @@ class Pusher extends Component
             'body' => $data
         ];
 
-        if ($this->autoFlush) {
+        if (!$this->flushAfterRequest) {
             return $this->flush();
         }
 
