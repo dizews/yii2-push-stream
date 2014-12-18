@@ -3,6 +3,7 @@
 namespace dizews\pushStream;
 
 use yii\base\Widget;
+use yii\helpers\Html;
 use yii\helpers\Json;
 
 class PushStreamWidget extends Widget
@@ -14,6 +15,8 @@ class PushStreamWidget extends Widget
     public $pusher = 'pusher';
 
     public $connect = true;
+
+    public $containerId = 'push-stream-events';
 
 
     public function init()
@@ -31,6 +34,7 @@ class PushStreamWidget extends Widget
      */
     public function run()
     {
+        echo Html::tag('div', null, ['id' => $this->containerId, 'style'=> 'display:none']);
         $view = $this->getView();
         PushStreamAsset::register($view);
         $options = Json::encode($this->pluginOptions);
@@ -43,7 +47,7 @@ class PushStreamWidget extends Widget
             {$channels}
             pushstream.onmessage = function (text, id, channel) {
                 $.each(text.events, function (index, event) {
-                    $(pushstream).trigger({
+                    $('#{$this->containerId}').trigger({
                         channel: channel,
                         type: event.name,
                         body: event.body
