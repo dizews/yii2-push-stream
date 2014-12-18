@@ -3,8 +3,10 @@
 namespace dizews\pushStream;
 
 
+use Yii;
 use GuzzleHttp\Client;
 use GuzzleHttp\Stream\Utils;
+use yii\base\Application;
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
 
@@ -31,7 +33,7 @@ class Pusher extends Component
         'modes' => 'stream'
     ];
 
-    public $autoFlush = true;
+    public $autoFlush = false;
 
     protected $channels = [];
 
@@ -40,6 +42,12 @@ class Pusher extends Component
     {
         $this->listenServerOptions = ArrayHelper::merge($this->serverOptions, $this->listenServerOptions);
         $this->client = new Client();
+
+        if (!$this->autoFlush) {
+            Yii::$app->on(Application::EVENT_AFTER_REQUEST, function () {
+                $this->flush();
+            });
+        }
     }
 
 
@@ -72,19 +80,23 @@ class Pusher extends Component
     public function flush()
     {
         $endpoint = $this->makeEndpoint($this->serverOptions);
+        Yii::trace('flush events of pusher');
 
-        foreach ($this->channels as $channel => $events) {
-            //send $payload into $endpoint
-            $response = $this->client->post($endpoint, [
-                'debug' => $this->debug,
-                'query' => ['id' => $channel],
-                $this->format => [
-                    'events' => $events,
-                ]
-            ]);
+        if ($this->channels) {
+            foreach ($this->channels as $channel => $events) {
+                //send $payload into $endpoint
+                $response = $this->client->post($endpoint, [
+                    'debug' => $this->debug,
+                    'query' => ['id' => $channel],
+                    $this->format => [
+                        'events' => $events,
+                    ]
+                ]);
+            }
+
+            $this->channels = [];
+            return $response->getBody()->getContents();
         }
-
-        return $response->getBody()->getContents();
     }
 
     /**
