@@ -7,7 +7,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Stream\Utils;
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
 
 
 class Pusher extends Component
@@ -60,6 +59,11 @@ class Pusher extends Component
         return $response->getBody()->getContents();
     }
 
+    /**
+     * @param $channels list of channels
+     * @param null $callback
+     * @param bool $debug
+     */
     public function listen($channels, $callback = null, $debug = false)
     {
         $endpoint = $this->makeEndpoint($this->listenServerOptions);
@@ -80,6 +84,11 @@ class Pusher extends Component
         }
     }
 
+    /**
+     *
+     * @param $serverOptions array of server options
+     * @return string
+     */
     private function makeEndpoint($serverOptions)
     {
         $protocol = $serverOptions['useSsl'] ? 'https' : 'http';
