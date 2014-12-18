@@ -13,6 +13,8 @@ class Pusher extends Component
 {
     public $format = 'json';
 
+    public $debug = false;
+
     /* @var Client */
     public $client;
 
@@ -33,6 +35,7 @@ class Pusher extends Component
 
     protected $channels = [];
 
+
     public function init()
     {
         $this->listenServerOptions = ArrayHelper::merge($this->serverOptions, $this->listenServerOptions);
@@ -41,13 +44,14 @@ class Pusher extends Component
 
 
     /**
+     * publish event
+     *
      * @param string $channel channel name
      * @param string $event event name
      * @param mixed $data body of event
-     * @param bool $debug debug mode
      * @return mixed
      */
-    public function publish($channel, $event, $data, $debug = false)
+    public function publish($channel, $event, $data)
     {
         $this->channels[$channel][] = [
             'name' => $event,
@@ -55,24 +59,24 @@ class Pusher extends Component
         ];
 
         if ($this->autoFlush) {
-            return $this->flush($debug);
+            return $this->flush();
         }
 
         return true;
     }
 
     /**
-     * @param bool $debug
+     * flush all events onto endpoint
      * @return mixed
      */
-    public function flush($debug = false)
+    public function flush()
     {
         $endpoint = $this->makeEndpoint($this->serverOptions);
 
         foreach ($this->channels as $channel => $events) {
             //send $payload into $endpoint
             $response = $this->client->post($endpoint, [
-                'debug' => $debug,
+                'debug' => $this->debug,
                 'query' => ['id' => $channel],
                 $this->format => [
                     'events' => $events,
@@ -84,11 +88,12 @@ class Pusher extends Component
     }
 
     /**
+     * listen endpoint
+     *
      * @param $channels list of channels
      * @param null $callback
-     * @param bool $debug
      */
-    public function listen($channels, $callback = null, $debug = false)
+    public function listen($channels, $callback = null)
     {
         $endpoint = $this->makeEndpoint($this->listenServerOptions);
         if (substr($this->listenServerOptions['path'], -1) != '/') {
@@ -96,7 +101,10 @@ class Pusher extends Component
         }
         $endpoint .= implode(',', (array)$channels);
 
-        $response = $this->client->get($endpoint, ['debug' => $debug, 'stream' => true]);
+        $response = $this->client->get($endpoint, [
+            'debug' => $this->debug,
+            'stream' => true
+        ]);
         $body = $response->getBody();
 
         while (!$body->eof()) {

@@ -20,6 +20,7 @@ class PushStreamWidget extends Widget
     {
         $config = \Yii::$app->get($this->pusher)->listenServerOptions;
         $this->pluginOptions = [
+            'useSsl' => $config['useSsl'],
             'host' => $config['host'],
             'port' => $config['port'],
             'modes' => $config['modes']
