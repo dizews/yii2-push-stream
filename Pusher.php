@@ -39,9 +39,6 @@ class Pusher extends Component
     {
         $channels = (array)$channels;
         $endpoint = $this->makeEndpoint($this->serverOptions);
-        if (!strpos($endpoint, 'http')) { //hack!!
-            $endpoint = 'http://'.$endpoint;
-        }
 
         //we need to add limit of channels
         foreach ($channels as $channel) {
