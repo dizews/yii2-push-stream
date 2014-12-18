@@ -18,7 +18,8 @@ class Pusher extends Component
     public $client;
 
     public $serverOptions = [
-        'host' => 'http://127.0.0.1',
+        'useSsl' => false,
+        'host' => '127.0.0.1',
         'port' => 80,
         'path' => '/pub'
     ];
@@ -35,26 +36,28 @@ class Pusher extends Component
     }
 
 
-    public function publish($channels, $event, $data, $socketId = null, $debug = false)
+    /**
+     * @param string $channel channel name
+     * @param array $events array of events with data ['event-name' => ["message1"]]
+     * @param null $socketId
+     * @param bool $debug debug mode
+     * @return mixed
+     */
+    public function publish($channel, $events, $socketId = null, $debug = false)
     {
-        $channels = (array)$channels;
         $endpoint = $this->makeEndpoint($this->serverOptions);
 
-        //we need to add limit of channels
-        foreach ($channels as $channel) {
-            //send $payload into $endpoint
-            $response = $this->client->post($endpoint, [
-                'debug' => $debug,
-                'query' => ['id' => $channel],
-                $this->format => [
-                    'type' => $event,
-                    'data' => $data,
-                    'socketId' => $socketId,
-                ]
-            ]);
+        //send $payload into $endpoint
+        $response = $this->client->post($endpoint, [
+            'debug' => $debug,
+            'query' => ['id' => $channel],
+            $this->format => [
+                'events' => $events,
+                'socketId' => $socketId,
+            ]
+        ]);
 
-            return $response->getBody()->getContents();
-        }
+        return $response->getBody()->getContents();
     }
 
     public function listen($channels, $callback = null, $debug = false)
@@ -79,6 +82,7 @@ class Pusher extends Component
 
     private function makeEndpoint($serverOptions)
     {
-        return $serverOptions['host'].':'.$serverOptions['port'].$serverOptions['path'];
+        $protocol = $serverOptions['useSsl'] ? 'https' : 'http';
+        return $protocol .'://'. $serverOptions['host'].':'.$serverOptions['port'].$serverOptions['path'];
     }
 }
