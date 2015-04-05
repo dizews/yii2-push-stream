@@ -40,12 +40,12 @@ class PushStreamWidget extends Widget
         $options = Json::encode($this->pluginOptions);
         $channels = '';
         foreach ((array)$this->channels as $channel) {
-            $channels .= "pushstream.addChannel('{$channel}');";
+            $channels .= $this->pusher .".addChannel('{$channel}');";
         }
         $js = <<<JS
-            var pushstream = new PushStream($options);
+            var {$this->pusher} = new PushStream($options);
             {$channels}
-            pushstream.onmessage = function (text, id, channel) {
+            {$this->pusher}.onmessage = function (text, id, channel) {
                 $.each(text.events, function (index, event) {
                     $('#{$this->containerId}').trigger({
                         channel: channel,
@@ -56,7 +56,7 @@ class PushStreamWidget extends Widget
             };
 JS;
         if ($this->connect) {
-            $js .= 'pushstream.connect();';
+            $js .= $this->pusher .'.connect();';
         }
         $view->registerJs($js);
     }
