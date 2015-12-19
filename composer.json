@@ -13,7 +13,7 @@
     "require": {
         "yiisoft/yii2": "*",
         "guzzlehttp/guzzle": "~5.0",
-        "bower-asset/pushstream": "*"
+        "bower-asset/pushstream": "dev-master"
     },
     "autoload": {
         "psr-4": {
