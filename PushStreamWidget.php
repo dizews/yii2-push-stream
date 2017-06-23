@@ -45,13 +45,12 @@ class PushStreamWidget extends Widget
         $js = <<<JS
             var {$this->pusher} = new PushStream($options);
             {$channels}
-            {$this->pusher}.onmessage = function (text, id, channel) {
-                $.each(text.events, function (index, event) {
-                    $('#{$this->containerId}').trigger({
-                        channel: channel,
-                        type: event.name,
-                        body: event.body
-                    });
+            {$this->pusher}.onmessage = function (text, id, channel, eventId, time) {
+                $('#{$this->containerId}').trigger({
+                    channel: channel,
+                    type: eventId,
+                    body: text,
+                    time: time,
                 });
             };
 JS;

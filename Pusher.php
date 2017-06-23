@@ -17,8 +17,10 @@ class Pusher extends Component
 
     public $debug = false;
 
+    public $eventIdheader = 'Event-Id';
+
     /* @var Client */
-    public $client;
+    private $client;
 
 
     public $serverOptions = [
@@ -84,14 +86,18 @@ class Pusher extends Component
 
         if ($this->channels) {
             foreach ($this->channels as $channel => $events) {
-                //send $payload into $endpoint
-                $response = $this->client->post($endpoint, [
-                    'debug' => $this->debug,
-                    'query' => ['id' => $channel],
-                    $this->format => [
-                        'events' => $events,
-                    ]
-                ]);
+                foreach ($events as $event) {
+                    //send $payload into $endpoint
+                    $response = $this->client->post($endpoint, [
+                        'headers' => [
+                            'Content-Type' => $this->format == 'json' ? 'application/json' : null,
+                            $this->eventIdheader => $event['name'],
+                        ],
+                        'debug' => $this->debug,
+                        'query' => ['id' => $channel],
+                        $this->format => $event['body']
+                    ]);
+                }
             }
 
             $this->channels = [];
