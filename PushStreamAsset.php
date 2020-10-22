@@ -6,7 +6,7 @@ use yii\web\AssetBundle;
 
 class PushStreamAsset extends AssetBundle
 {
-    public $sourcePath = '@bower/pushstream';
+    public $sourcePath = '@vendor/dizews/yii2-push-stream/assets';
 
     public $js = [
         'pushstream.js'

@@ -5,7 +5,7 @@ namespace dizews\pushStream;
 
 use Yii;
 use GuzzleHttp\Client;
-use GuzzleHttp\Stream\Utils;
+use GuzzleHttp\Psr7\Utils;
 use yii\base\Application;
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
@@ -19,18 +19,19 @@ class Pusher extends Component
 
     public $eventIdheader = 'Event-Id';
 
+    public $channelSplitter = '/';
+
     /* @var Client */
     private $client;
 
 
     public $serverOptions = [
-        'useSsl' => false,
-        'host' => '127.0.0.1',
-        'port' => 80,
+        'host' => 'http://127.0.0.1',
         'path' => '/pub'
     ];
 
     public $listenServerOptions = [
+        'host' => 'http://127.0.0.1',
         'path' => '/sub',
         'modes' => 'stream'
     ];
@@ -42,7 +43,6 @@ class Pusher extends Component
 
     public function init()
     {
-        $this->listenServerOptions = ArrayHelper::merge($this->serverOptions, $this->listenServerOptions);
         $this->client = new Client();
 
         if ($this->flushAfterRequest) {
@@ -61,18 +61,15 @@ class Pusher extends Component
      * @param mixed $data body of event
      * @return mixed
      */
-    public function publish($channel, $event, $data)
+    public function publish(string $channel, string $event, $payload = [])
     {
         $this->channels[$channel][] = [
-            'name' => $event,
-            'body' => $data
+            'time' => date(\DateTime::RFC7231),
+            'eventId' => $event,
+            'payload' => $payload,
         ];
 
-        if (!$this->flushAfterRequest) {
-            return $this->flush();
-        }
-
-        return true;
+        return $this;
     }
 
     /**
@@ -88,14 +85,15 @@ class Pusher extends Component
             foreach ($this->channels as $channel => $events) {
                 foreach ($events as $event) {
                     //send $payload into $endpoint
+                    $event['channel'] = $channel;
                     $response = $this->client->post($endpoint, [
-                        'headers' => [
-                            'Content-Type' => $this->format == 'json' ? 'application/json' : null,
-                            $this->eventIdheader => $event['name'],
-                        ],
-                        'debug' => $this->debug,
                         'query' => ['id' => $channel],
-                        $this->format => $event['body']
+                        'headers' => array_filter([
+                            'Content-Type' => $this->format == 'json' ? 'application/json' : null,
+                            $this->eventIdheader => $event['eventId'],
+                        ]),
+                        'debug' => $this->debug,
+                        $this->format => $event
                     ]);
                 }
             }
@@ -114,10 +112,10 @@ class Pusher extends Component
     public function listen($channels, $callback = null)
     {
         $endpoint = $this->makeEndpoint($this->listenServerOptions);
-        if (substr($this->listenServerOptions['path'], -1) != '/') {
+        if (substr($endpoint, -1) != '/') {
             $endpoint .= '/';
         }
-        $endpoint .= implode(',', (array)$channels);
+        $endpoint .= implode($this->channelSplitter, (array)$channels);
 
         $response = $this->client->get($endpoint, [
             'debug' => $this->debug,
@@ -141,7 +139,6 @@ class Pusher extends Component
      */
     private function makeEndpoint($serverOptions)
     {
-        $protocol = $serverOptions['useSsl'] ? 'https' : 'http';
-        return $protocol .'://'. $serverOptions['host'].':'.$serverOptions['port'].$serverOptions['path'];
+        return $serverOptions['host'].$serverOptions['path'];
     }
 }
