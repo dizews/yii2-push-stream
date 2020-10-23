@@ -24,11 +24,10 @@ class PushStreamWidget extends Widget
 
     public function init()
     {
-        $config = \Yii::$app->get($this->pusher)->listenServerOptions;
+        $config = array_merge($this->getPusher()->serverOptions, $this->getPusher()->listenServerOptions);
 
         $this->url = "{$config['host']}{$config['path']}";
         $this->pluginOptions = ArrayHelper::merge([
-            'useSsl' => $config['useSsl'],
             'host' => $config['host'],
             'port' => $config['port'],
             'modes' => $config['modes'],
@@ -63,5 +62,13 @@ JS;
             $js .= $this->pusher .'.start();';
         }
         $view->registerJs($js);
+    }
+
+    /**
+     * @return Pusher
+     */
+    private function getPusher()
+    {
+        return Yii::$app->get($this->pusher);
     }
 }

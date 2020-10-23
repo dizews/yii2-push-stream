@@ -9,6 +9,6 @@ class PushStreamAsset extends AssetBundle
     public $sourcePath = '@vendor/dizews/yii2-push-stream/assets';
 
     public $js = [
-        'pushstream.js'
+        'NchanSubscriber.js'
     ];
 }

@@ -31,7 +31,6 @@ class Pusher extends Component
     ];
 
     public $listenServerOptions = [
-        'host' => 'http://127.0.0.1',
         'path' => '/sub',
         'modes' => 'stream'
     ];
@@ -85,14 +84,13 @@ class Pusher extends Component
             foreach ($this->channels as $channel => $events) {
                 foreach ($events as $event) {
                     //send $payload into $endpoint
-                    $event['channel'] = $channel;
+                    $event['channel'] = (string)$channel;
                     $response = $this->client->post($endpoint, [
                         'query' => ['id' => $channel],
                         'headers' => array_filter([
                             'Content-Type' => $this->format == 'json' ? 'application/json' : null,
                             $this->eventIdheader => $event['eventId'],
                         ]),
-                        'debug' => $this->debug,
                         $this->format => $event
                     ]);
                 }
@@ -111,14 +109,13 @@ class Pusher extends Component
      */
     public function listen($channels, $callback = null)
     {
-        $endpoint = $this->makeEndpoint($this->listenServerOptions);
+        $endpoint = $this->makeEndpoint(array_merge($this->serverOptions, $this->listenServerOptions));
         if (substr($endpoint, -1) != '/') {
             $endpoint .= '/';
         }
         $endpoint .= implode($this->channelSplitter, (array)$channels);
 
         $response = $this->client->get($endpoint, [
-            'debug' => $this->debug,
             'stream' => true
         ]);
         $body = $response->getBody();
