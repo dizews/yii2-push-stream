@@ -109,11 +109,7 @@ class Pusher extends Component
      */
     public function listen($channels, $callback = null)
     {
-        $endpoint = $this->makeEndpoint(array_merge($this->serverOptions, $this->listenServerOptions));
-        if (substr($endpoint, -1) != '/') {
-            $endpoint .= '/';
-        }
-        $endpoint .= implode($this->channelSplitter, (array)$channels);
+        $endpoint = $this->getListenerHost($channels);
 
         $response = $this->client->get($endpoint, [
             'stream' => true
@@ -127,6 +123,17 @@ class Pusher extends Component
                 echo Utils::readline($body);
             }
         }
+    }
+
+    public function getListenerHost($channels)
+    {
+        $endpoint = $this->makeEndpoint(array_merge($this->serverOptions, $this->listenServerOptions));
+        if (substr($endpoint, -1) != '/') {
+            $endpoint .= '/';
+        }
+        $endpoint .= implode($this->channelSplitter, (array)$channels);
+
+        return $endpoint;
     }
 
     /**
