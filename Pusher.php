@@ -17,7 +17,7 @@ class Pusher extends Component
 
     public $debug = false;
 
-    public $eventIdheader = 'Event-Id';
+    public $eventIdheader = 'X-EventSource-Event';
 
     public $channelSplitter = '/';
 
@@ -64,7 +64,7 @@ class Pusher extends Component
     {
         $this->channels[$channel][] = [
             'time' => date(\DateTime::RFC7231),
-            'eventId' => $event,
+            'event' => $event,
             'payload' => $payload,
         ];
 
