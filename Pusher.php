@@ -42,8 +42,6 @@ class Pusher extends Component
 
     public function init()
     {
-        $this->client = new Client();
-
         if ($this->flushAfterRequest) {
             Yii::$app->on(Application::EVENT_AFTER_REQUEST, function () {
                 $this->flush();
@@ -72,6 +70,24 @@ class Pusher extends Component
     }
 
     /**
+     * @param string $channel
+     */
+    public function create(string $channel)
+    {
+        $endpoint = $this->makeEndpoint($this->serverOptions);
+        $this->getClient()->put($endpoint, ['query' => ['id' => $channel]]);
+    }
+
+    /**
+     * @param string $channel
+     */
+    public function delete(string $channel)
+    {
+        $endpoint = $this->makeEndpoint($this->serverOptions);
+        $this->getClient()->delete($endpoint, ['query' => ['id' => $channel]]);
+    }
+
+    /**
      * flush all events onto endpoint
      * @return mixed
      */
@@ -85,7 +101,7 @@ class Pusher extends Component
                 foreach ($events as $event) {
                     //send $payload into $endpoint
                     $event['channel'] = (string)$channel;
-                    $response = $this->client->post($endpoint, [
+                    $response = $this->getClient()->post($endpoint, [
                         'query' => ['id' => $channel],
                         'headers' => array_filter([
                             'Content-Type' => $this->format == 'json' ? 'application/json' : null,
@@ -111,7 +127,7 @@ class Pusher extends Component
     {
         $endpoint = $this->getListenerHost($channels);
 
-        $response = $this->client->get($endpoint, [
+        $response = $this->getClient()->get($endpoint, [
             'stream' => true
         ]);
         $body = $response->getBody();
@@ -134,6 +150,18 @@ class Pusher extends Component
         $endpoint .= implode($this->channelSplitter, (array)$channels);
 
         return $endpoint;
+    }
+
+    /**
+     * @return Client
+     */
+    protected function getClient()
+    {
+        if (!$this->client) {
+            $this->client = new Client();
+        }
+
+        return $this->client;
     }
 
     /**
