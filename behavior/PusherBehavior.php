@@ -42,7 +42,11 @@ class PusherBehavior extends Behavior
         $channel = $sender->getAttribute($this->channelAttribute);
         if ($this->isAttributeChanged($event, $this->channelAttribute)) {
             if ($event->name == ActiveRecord::EVENT_AFTER_UPDATE) {
-                $this->getClient()->delete($event->changedAttributes[$this->channelAttribute]);
+                try {
+                    $this->getClient()->delete($event->changedAttributes[$this->channelAttribute]);
+                } catch (Exception $e) {
+                    Yii::warning($e->getMessage());
+                }
             }
             $this->getClient()->create($channel);
         }
