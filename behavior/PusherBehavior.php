@@ -44,11 +44,15 @@ class PusherBehavior extends Behavior
             if ($event->name == ActiveRecord::EVENT_AFTER_UPDATE) {
                 try {
                     $this->getClient()->delete($event->changedAttributes[$this->channelAttribute]);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     Yii::warning($e->getMessage());
                 }
             }
-            $this->getClient()->create($channel);
+            try {
+                $this->getClient()->create($channel);
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage());
+            }
         }
     }
 
@@ -57,7 +61,7 @@ class PusherBehavior extends Behavior
         try {
             $channel = $event->sender->getAttribute($this->channelAttribute);
             $this->getClient()->delete($channel);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Yii::warning($e->getMessage());
         }
     }
