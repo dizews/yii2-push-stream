@@ -54,8 +54,12 @@ class PusherBehavior extends Behavior
 
     public function delete(Event $event)
     {
-        $channel = $event->sender->getAttribute($this->channelAttribute);
-        $this->getClient()->delete($channel);
+        try {
+            $channel = $event->sender->getAttribute($this->channelAttribute);
+            $this->getClient()->delete($channel);
+        } catch (Exception $e) {
+            Yii::warning($e->getMessage());
+        }
     }
 
     /**
